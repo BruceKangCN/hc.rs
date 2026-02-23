@@ -10,6 +10,7 @@ Simple HTTP based health check tool. Works like `ping`.
 | `-V, --version` | print version | |
 | `-c, --count` | request count | unlimited |
 | `-i, --interval` | request interval in milliseconds | 1000 |
+| `-t, --timeout` | request timeout in milliseconds | 5000 |
 | `END_POINT` | HTTP end point | |
 
 ## Detail

@@ -9,6 +9,9 @@ pub struct Args {
     #[arg(short, long)]
     pub interval: Option<u64>,
 
+    #[arg(short, long)]
+    pub timeout: Option<u64>,
+
     pub end_point: String,
 }
 

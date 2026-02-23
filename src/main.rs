@@ -8,7 +8,7 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
     let client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(5))
+        .timeout(Duration::from_millis(args.timeout.unwrap_or(5000)))
         .build()?;
 
     // watch for Ctrl-C signal
