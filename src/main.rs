@@ -1,6 +1,7 @@
 use std::{error::Error, time::{Duration, Instant}};
 
 use clap::Parser;
+use colored::Colorize;
 use hc::{Args, Statistics};
 
 #[tokio::main]
@@ -26,7 +27,6 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
             _ = interval.tick() => {},
             _ = stop_rx.changed() => break,
         }
-        // interval.tick().await;
 
         let start = Instant::now();
         let result = client.get(&args.end_point).send().await;
@@ -35,20 +35,23 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
         match result {
             Err(e) => {
                 stat.failure += 1;
-                println!("#{} [Fail  ] {:?} {:?}", i, e, elapsed);
+                let msg = format!("#{} [Fail  ] {:?} {:?}", i, e, elapsed);
+                println!("{}", msg.as_str().red());
             }
             Ok(resp) if !resp.status().is_success() => {
                 stat.error += 1;
-                println!("#{} [Error ] {:?} {:?}", i, &resp.status(), elapsed);
+                let msg = format!("#{} [Error ] {:?} {:?}", i, &resp.status(), elapsed);
+                println!("{}", msg.as_str().yellow());
             }
             Ok(_) => {
                 stat.success += 1;
-                println!("#{} [OK    ] {:?}", i, elapsed);
+                let msg = format!("#{} [OK    ] {:?}", i, elapsed);
+                println!("{}", msg.as_str().green());
             }
         }
     }
 
-    println!("");
+    println!("{}", "=".repeat(80));
     println!("success: {}", stat.success);
     println!("error: {}", stat.error);
     println!("failure: {}", stat.failure);
