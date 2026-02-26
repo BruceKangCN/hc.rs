@@ -1,6 +1,6 @@
 [package]
 name = "hc"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 
 [dependencies]
@@ -8,3 +8,6 @@ clap = { version = "4", features = ["derive"] }
 colored = "3.1.1"
 reqwest = "0.13"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync", "signal"] }
+tracing = "0.1.44"
+tracing-appender = "0.2.4"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter", "json"] }

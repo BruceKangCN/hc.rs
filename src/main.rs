@@ -1,11 +1,25 @@
-use std::{error::Error, time::{Duration, Instant}};
+use std::{
+    error::Error,
+    time::{Duration, Instant},
+};
 
 use clap::Parser;
 use colored::Colorize;
 use hc::{Args, Statistics};
+use tracing::info;
+use tracing_appender::rolling::{RollingFileAppender, Rotation};
+use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
 async fn main() -> std::result::Result<(), Box<dyn Error>> {
+    let appender = RollingFileAppender::new(Rotation::DAILY, ".", "hc.log");
+    let (nb_file, _file_guard) = tracing_appender::non_blocking(appender);
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env())
+        .with_writer(nb_file)
+        .json()
+        .init();
+
     let args = Args::parse();
 
     let client = reqwest::Client::builder()
@@ -35,18 +49,39 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
         match result {
             Err(e) => {
                 stat.failure += 1;
-                let msg = format!("#{} [Fail  ] {:?} {:?}", i, e, elapsed);
+
+                let error = Some(&e);
+                let status = Option::<reqwest::StatusCode>::None;
+                let healthy = false;
+
+                let msg = format!("#{} [Fail  ] {:?} {:?}", i, &e, elapsed);
                 println!("{}", msg.as_str().red());
+
+                info!(i, ?elapsed, ?error, ?status, healthy);
             }
             Ok(resp) if !resp.status().is_success() => {
                 stat.error += 1;
+
+                let error = Option::<reqwest::Error>::None;
+                let status = Some(&resp.status());
+                let healthy = false;
+
                 let msg = format!("#{} [Error ] {:?} {:?}", i, &resp.status(), elapsed);
                 println!("{}", msg.as_str().yellow());
+
+                info!(i, ?elapsed, ?error, ?status, healthy);
             }
-            Ok(_) => {
+            Ok(resp) => {
                 stat.success += 1;
+
+                let error = Option::<reqwest::Error>::None;
+                let status = Some(&resp.status());
+                let healthy = true;
+
                 let msg = format!("#{} [OK    ] {:?}", i, elapsed);
                 println!("{}", msg.as_str().green());
+
+                info!(i, ?elapsed, ?error, ?status, healthy);
             }
         }
     }
