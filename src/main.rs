@@ -91,7 +91,7 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
     println!("error: {}", stat.error);
     println!("failure: {}", stat.failure);
     println!("total: {}", stat.total());
-    println!("heath rate: {:.2}%", stat.health_rate() * 100.0);
+    println!("health rate: {:.2}%", stat.health_rate() * 100.0);
     println!("fail rate: {:.2}%", stat.fail_rate() * 100.0);
 
     Ok(())
