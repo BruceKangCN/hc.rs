@@ -44,7 +44,7 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
 
         let start = Instant::now();
         let result = client.get(&args.end_point).send().await;
-        let elapsed = start.elapsed();
+        let rtt = start.elapsed();
 
         match result {
             Err(e) => {
@@ -54,10 +54,10 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
                 let status = Option::<reqwest::StatusCode>::None;
                 let healthy = false;
 
-                let msg = format!("#{} [Fail  ] {:?} {:?}", i, &e, elapsed);
+                let msg = format!("#{} [Fail  ] {:?} {:?}", i, &e, rtt);
                 println!("{}", msg.as_str().red());
 
-                info!(i, ?elapsed, ?error, ?status, healthy);
+                info!(i, ?rtt, ?error, ?status, healthy);
             }
             Ok(resp) if !resp.status().is_success() => {
                 stat.error += 1;
@@ -66,10 +66,10 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
                 let status = Some(&resp.status());
                 let healthy = false;
 
-                let msg = format!("#{} [Error ] {:?} {:?}", i, &resp.status(), elapsed);
+                let msg = format!("#{} [Error ] {:?} {:?}", i, &resp.status(), rtt);
                 println!("{}", msg.as_str().yellow());
 
-                info!(i, ?elapsed, ?error, ?status, healthy);
+                info!(i, ?rtt, ?error, ?status, healthy);
             }
             Ok(resp) => {
                 stat.success += 1;
@@ -78,10 +78,10 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
                 let status = Some(&resp.status());
                 let healthy = true;
 
-                let msg = format!("#{} [OK    ] {:?}", i, elapsed);
+                let msg = format!("#{} [OK    ] {:?}", i, rtt);
                 println!("{}", msg.as_str().green());
 
-                info!(i, ?elapsed, ?error, ?status, healthy);
+                info!(i, ?rtt, ?error, ?status, healthy);
             }
         }
     }
